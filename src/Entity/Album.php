@@ -31,9 +31,20 @@ class Album
     #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'album')]
     private Collection $reviews;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'albums')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?self $genre = null;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'genre')]
+    private Collection $albums;
+
     public function __construct()
     {
         $this->reviews = new ArrayCollection();
+        $this->albums = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -101,6 +112,48 @@ class Album
             // set the owning side to null (unless already changed)
             if ($review->getAlbum() === $this) {
                 $review->setAlbum(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getGenre(): ?self
+    {
+        return $this->genre;
+    }
+
+    public function setGenre(?self $genre): static
+    {
+        $this->genre = $genre;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getAlbums(): Collection
+    {
+        return $this->albums;
+    }
+
+    public function addAlbum(self $album): static
+    {
+        if (!$this->albums->contains($album)) {
+            $this->albums->add($album);
+            $album->setGenre($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAlbum(self $album): static
+    {
+        if ($this->albums->removeElement($album)) {
+            // set the owning side to null (unless already changed)
+            if ($album->getGenre() === $this) {
+                $album->setGenre(null);
             }
         }
 
