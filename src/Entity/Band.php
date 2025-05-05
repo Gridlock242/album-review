@@ -28,10 +28,9 @@ class Band
     #[ORM\Column(length: 255)]
     private ?string $image = null;
 
-    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'categorizations')]
+    #[ORM\OneToMany(mappedBy: 'band', targetEntity: Categorization::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?self $categorizations = null;
-
+    private Collection $categorizations;
     public function __construct()
     {
         $this->categorizations = new ArrayCollection();
